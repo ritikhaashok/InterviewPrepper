@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { PromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 
 dotenv.config();
 
@@ -14,34 +16,53 @@ const model = new ChatGoogleGenerativeAI({
   model: "gemini-1.5-flash",
 });
 
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { PromptTemplate } from "@langchain/core/prompts";
+import { StringOutputParser } from "@langchain/core/output_parsers";
+
+dotenv.config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const model = new ChatGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY,
+  model: "gemini-1.5-flash",
+});
 app.post("/analyze", async (req, res) => {
   const { resume, jobDescription, company } = req.body;
 
-  const prompt = `
-You are an expert technical recruiter.
+  const prompt = PromptTemplate.fromTemplate(`
+You are a senior recruiter at {company}.
 
-Analyze this resume vs job description.
-
-Company: ${company}
+Compare resume and job description.
 
 Resume:
-${resume}
+{resume}
 
 Job Description:
-${jobDescription}
+{jobDescription}
 
-Return:
-1. Match score (0-100)
-2. Missing skills
-3. Interview questions
-4. 7-day prep plan
-`;
+Return structured output:
+- Match Score (0-100)
+- Missing Skills
+- Interview Questions
+- 7 Day Study Plan
+`);
 
-  const result = await model.invoke(prompt);
+  const chain = prompt.pipe(model).pipe(new StringOutputParser());
 
-  res.json({
-    output: result.content,
+  const result = await chain.invoke({
+    company,
+    resume,
+    jobDescription,
   });
+
+  res.json({ output: result });
 });
 
 app.listen(3001, () => {
