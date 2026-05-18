@@ -1,1 +1,1 @@
-# AI Interview Prep 
+# AI Job App Assistant

@@ -47,7 +47,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 px-6 py-10">
       <header className="max-w-6xl mx-auto border-b border-slate-200 pb-5 mb-8">
         <h1 className="text-4xl font-extrabold text-slate-900">
-          AI Interview Assistant
+          AI Job App Assistant
         </h1>
         <p className="text-slate-500 mt-2">
           Optimize your profile, map skill gaps, and generate interview prep
